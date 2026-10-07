@@ -1,5 +1,12 @@
 # AWS Certified Solutions Architect Associate (SAA-C03) reference guide [2026]
 
+## AWS SAA-C03 2026 Study Dashboard
+
+> **[Open the interactive GitHub Pages study dashboard →](https://markkaruga254.github.io/AWS-Solutions-Architect-Associate-Exam-2026/)**
+>
+> Search services, jump directly to exam notes, and track reviewed topics locally in your browser.
+
+
 ![AWS Certified Solutions Architect Associate (SAA-C03) reference guide](/extras/AWS_Certified_Solutions_Architect_Associate_SAA_C03_Cheatsheet_logo.png)
 
 This repository contains a reference guide with key information to help you prepare for the AWS Certified Solutions Architect Associate (SAA-C03) exam, **updated for 2026**.
