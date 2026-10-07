@@ -5,31 +5,28 @@ let progress=JSON.parse(localStorage.getItem(key)||"{}");
 const nav=document.querySelector("#nav"),cards=document.querySelector("#cards"),search=document.querySelector("#search");
 const all=groups.flatMap(g=>g[1].map(x=>({...x,group:g[0]})));
 document.querySelector("#total").textContent=all.length;
+function toggle(anchor){progress[anchor]=!progress[anchor];if(!progress[anchor])delete progress[anchor];localStorage.setItem(key,JSON.stringify(progress));render(search.value)}
 function render(q=""){
- q=q.trim().toLowerCase(); nav.innerHTML=""; cards.innerHTML="";
- let shown=0;
+ q=q.trim().toLowerCase();nav.innerHTML="";cards.innerHTML="";let shown=0;
  for(const [group,items] of groups){
-   const matches=items.filter(([n])=>n.toLowerCase().includes(q)||group.toLowerCase().includes(q));
-   if(!matches.length) continue;
-   const ng=document.createElement("div"); ng.className="nav-group"; ng.innerHTML="<h3>"+group+"</h3>";
-   const grid=document.createElement("div"); grid.className="card-grid";
-   for(const [name,anchor] of matches){
-     shown++;
-     const done=!!progress[anchor];
-     const a=document.createElement("a"); a.className="nav-item "+(done?"done":""); a.href=base+anchor; a.target="_blank"; a.innerHTML="<span>"+name+"</span><b>"+(done?"✓":"→")+"</b>";
-     a.addEventListener("contextmenu",()=>{});
-     ng.appendChild(a);
-     const c=document.createElement("article"); c.className="card "+(done?"done":"");
-     c.innerHTML="<div class='card-top'><span class='tag'>"+group+"</span><button class='check' aria-label='Mark "+name+" reviewed'>"+(done?"✓":"○")+"</button></div><h3>"+name+"</h3><a href='"+base+anchor+"' target='_blank'>Open notes →</a>";
-     c.querySelector(".check").onclick=(e)=>{e.preventDefault(); progress[anchor]=!progress[anchor]; if(!progress[anchor]) delete progress[anchor]; localStorage.setItem(key,JSON.stringify(progress)); render(search.value)};
-     grid.appendChild(c);
-   }
-   nav.appendChild(ng); cards.appendChild(grid);
+  const matches=items.filter(([n])=>n.toLowerCase().includes(q)||group.toLowerCase().includes(q));if(!matches.length)continue;
+  const ng=document.createElement("div");ng.className="nav-group";const groupDone=items.filter(([,a])=>progress[a]).length;
+  ng.innerHTML="<div class='nav-heading'><h3>"+group+"</h3><span>"+groupDone+"/"+items.length+"</span></div>";
+  const grid=document.createElement("div");grid.className="card-grid";
+  for(const [name,anchor] of matches){
+   shown++;const done=!!progress[anchor];
+   const row=document.createElement("div");row.className="nav-row";
+   row.innerHTML="<button class='nav-check "+(done?"checked":"")+"' aria-label='Toggle "+name+"'>"+(done?"✓":"")+"</button><a class='nav-item "+(done?"done":"")+"' href='"+base+anchor+"' target='_blank'><span>"+name+"</span><b>→</b></a>";
+   row.querySelector(".nav-check").onclick=()=>toggle(anchor);ng.appendChild(row);
+   const c=document.createElement("article");c.className="card "+(done?"done":"");
+   c.innerHTML="<div class='card-top'><span class='tag'>"+group+"</span><button class='check' aria-label='Mark "+name+" reviewed'>"+(done?"✓":"○")+"</button></div><h3>"+name+"</h3><a href='"+base+anchor+"' target='_blank'>Open notes →</a>";
+   c.querySelector(".check").onclick=()=>toggle(anchor);grid.appendChild(c);
+  }
+  nav.appendChild(ng);cards.appendChild(grid);
  }
- document.querySelector("#resultCount").textContent=shown+" topics";
- updateStats();
+ document.querySelector("#resultCount").textContent=shown+" topics";updateStats();
 }
-function updateStats(){const done=all.filter(([,a])=>progress[a]).length; document.querySelector("#done").textContent=Math.round(done/all.length*100)+"%";}
+function updateStats(){const done=all.filter(([,a])=>progress[a]).length,pct=all.length?Math.round(done/all.length*100):0;document.querySelector("#done").textContent=pct+"%";const bar=document.querySelector("#progressBar");if(bar)bar.style.width=pct+"%";const text=document.querySelector("#progressText");if(text)text.textContent=done+" of "+all.length+" topics completed"}
 search.addEventListener("input",()=>render(search.value));
 document.querySelector("#reset").onclick=()=>{if(confirm("Reset all study progress?")){progress={};localStorage.removeItem(key);render(search.value)}};
 render();
